@@ -1,66 +1,76 @@
 {
-  "name": "resourceful",
-  "version": "1.0.0",
-  "description": "Resourecful ties togther react, redux, immutablejs, and normalizr into a sane backbone for your API-backed app",
-  "main": "./dist/index.js",
-  "module": "./src/index.js",
-  "scripts": {
-    "build": "babel src --out-dir dist",
-    "prepublishOnly": "npm run build",
-    "test": "jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mattvague/resourceful.git"
-  },
-  "keywords": [
-    "redux",
-    "react",
-    "api",
-    "resources",
-    "immutable"
-  ],
-  "author": "Matt Vague",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/mattvague/resourceful/issues"
-  },
-  "homepage": "https://github.com/mattvague/resourceful#readme",
-  "dependencies": {
-    "uuidv4": "^1.0.0",
-    "immutable": "^3.8.2"
-  },
-  "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.3",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
-    "enzyme": "^3.3.0",
-    "eslint": "^4.19.1",
-    "eslint-config-prettier": "^2.9.0",
-    "eslint-plugin-jest": "^21.17.0",
-    "eslint-plugin-prettier": "^2.6.0",
-    "jest": "^23.1.0",
-    "prettier": "1.13.4",
-    "react-test-renderer": "^16.4.0"
-  },
-  "jest": {
-    "modulePathIgnorePatterns": [
-      "dist/.*"
-    ]
-  },
-  "babel": {
-    "presets": [
-      [
-        "env",
-        {
-          "targets": {
-            "node": "current"
-          }
-        }
-      ]
-    ]
-  }
+	"name": "resourceful",
+	"version": "1.0.0",
+	"description": "Resourecful ties togther react, redux, immutablejs, and normalizr into a sane backbone for your API-backed app",
+	"main": "./dist/index.js",
+	"types": "./src/index.d.ts",
+	"module": "./src/index.ts",
+	"scripts": {
+		"build": "tsc",
+		"prepublishOnly": "npm run build",
+		"test": "jest"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/mattvague/resourceful.git"
+	},
+	"keywords": [
+		"redux",
+		"react",
+		"api",
+		"resources",
+		"immutable"
+	],
+	"author": "Matt Vague",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/mattvague/resourceful/issues"
+	},
+	"homepage": "https://github.com/mattvague/resourceful#readme",
+	"dependencies": {},
+	"devDependencies": {
+		"@types/jest": "^23.0.0",
+		"@types/react": "^16.3.16",
+		"@types/react-dom": "^16.0.5",
+		"@types/react-redux": "^6.0.1",
+		"@types/recompose": "^0.26.1",
+		"enzyme": "^3.3.0",
+		"enzyme-adapter-react-16": "^1.1.1",
+		"eslint": "^4.19.1",
+		"eslint-config-prettier": "^2.9.0",
+		"eslint-plugin-jest": "^21.17.0",
+		"eslint-plugin-prettier": "^2.6.0",
+		"immutable": "^3.8.2",
+		"jest": "^23.1.0",
+		"prettier": "1.13.4",
+		"react": "^16.4.0",
+		"react-dom": "^16.4.0",
+		"react-redux": "^5.0.7",
+		"react-test-renderer": "^16.4.0",
+		"recompose": "^0.27.1",
+		"redux": "^4.0.0",
+		"redux-immutable": "^4.0.0",
+		"ts-jest": "^22.4.6",
+		"typescript": "^2.9.1",
+		"uuidv4": "^1.0.0"
+	},
+	"jest": {
+		"setupTestFrameworkScriptFile": "<rootDir>/src/setupTests.ts",
+		"transform": {
+			"^.+\\.(tsx?)$": "ts-jest"
+		},
+		"collectCoverage": true,
+		"modulePathIgnorePatterns": [
+			"dist/.*"
+		],
+		"testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+		"moduleFileExtensions": [
+			"ts",
+			"tsx",
+			"js",
+			"jsx",
+			"json",
+			"node"
+		]
+	}
 }
