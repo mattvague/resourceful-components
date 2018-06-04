@@ -5,27 +5,29 @@ import { compose, bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { lifecycle } from 'recompose'
 
-const resourceful = (Resource: object, dispatchProps = {}) => (WrappedComponent: any) => {
+const resourceful = (Resource, mergeProps = () => {}) => (WrappedComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
 
-  const selectRecord = (state: object, { id: string, record: object }) =>
+  const selectRecord = (state, { id, record }) =>
     Resource.selectors.select(record ? record.id : id)(state)
 
-  const buildRecord = ({ id: string, record: object }) =>
+  const buildRecord = ({ id, record }) =>
     record || Resource.build({ id })
 
-  const mapStateToProps = (state: object, props: object) => ({
+  const mapStateToProps = (state, props) => ({
     record: selectRecord(state, props) || buildRecord(props)
   })
 
-  const mapDispatchToProps = (dispatch: any, props: object) => ({
-    ...bindActionCreators(buildRecord(props).actions, dispatch),
-    ...bindActionCreators(dispatchProps, dispatch)
-  })
+  const mapDispatchToProps = (dispatch: any, props: object) =>
+    bindActionCreators(buildRecord(props).actions, dispatch)
 
   const withRedux = connect(
     mapStateToProps,
-    mapDispatchToProps
+    mapDispatchToProps,
+    (stateProps, dispatchProps, ownProps) => ({
+      ...ownProps, ...dispatchProps, ...stateProps,
+      ...mergeProps(stateProps, dispatchProps, ownProps)
+    })
   )
 
   const withLifecycle = lifecycle({
@@ -43,20 +45,20 @@ const resourceful = (Resource: object, dispatchProps = {}) => (WrappedComponent:
   return compose<any>(withRedux, withLifecycle)(WrappedComponent)
 }
 
-const resourcefulList = (Resource, dispatchProps = {}) => (WrappedListComponent) => {
+const resourcefulList = (Resource, mergeProps) => (WrappedListComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
 
   const mapStateToProps = (state, props) => ({
     records: Resource.selectors.selectAll()(state)
   })
 
-  const mapDispatchToProps = (dispatch, props) => ({
-    ...bindActionCreators(Resource.actions, dispatch)
-  })
+  const mapDispatchToProps = (dispatch, props) =>
+    bindActionCreators(Resource.actions, dispatch)
 
   const withRedux = connect(
     mapStateToProps,
-    mapDispatchToProps
+    mapDispatchToProps,
+    mergeProps
   )
 
   const withLifecycle = lifecycle({

@@ -214,18 +214,17 @@ describe('resourceful', () => {
 
   describe('options', () => {
     describe('mergeProps', () => {
-      it('allows merging props', () => {
-        const mockOnSubmit = jest.fn().mockReturnValue({ type: 'TEST' })
+      it('allows passing mergeProps', () => {
         const ReduxFormWrappedComponent = ({ onSubmit }) => <Component handleSubmit={onSubmit}/>
-        const WrappedComponent = resourceful(Dog, {
-          onSubmit: mockOnSubmit
-        })(ReduxFormWrappedComponent)
+        const WrappedComponent = resourceful(Dog, (dispatchProps, { save }, ownProps) => ({
+          onSubmit: save
+        }))(ReduxFormWrappedComponent)
         const node = mount(<WrappedComponent store={testStore} id={99} />)
         const props = node.children().first().find('Component').props()
 
         props.handleSubmit()
 
-        expect(mockOnSubmit).toHaveBeenCalled()
+        expect(mockInstanceActions.save).toHaveBeenCalled()
         expect(store.dispatch).toHaveBeenCalledWith({ type: 'TEST' })
       })
     })
