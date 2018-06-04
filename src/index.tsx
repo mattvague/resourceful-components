@@ -1,13 +1,19 @@
-import Resource from './Resource'
-
 import { Component } from 'react'
 import { compose, bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { lifecycle } from 'recompose'
+import pick from 'lodash/pick'
+import isEqual from 'lodash/isEqual'
 
-const resourceful = (Resource, mergeProps = () => {}) => (WrappedComponent) => {
+import Resource from './Resource'
+
+const resourceful = (Resource, options) => (WrappedComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
 
+  const defaults = { mergeProps: () => {} }
+  const settings = { ...defaults, ...options }
+
+  const mergeProps = settings.mergeProps
   const selectRecord = Resource.selectors.select
 
   const mapStateToProps = (state, { id }) => ({
@@ -29,18 +35,25 @@ const resourceful = (Resource, mergeProps = () => {}) => (WrappedComponent) => {
       this.props.fetch(this.props)
     },
 
-    componentDidUpdate({ record: prevRecord, id: prevId }) {
-      const { record, id } = this.props
+    componentDidUpdate(prevProps) {
+      const { record: prevRecord } = prevProps
+      const { record } = this.props
 
-      if (!record.equals(prevRecord)) { record.actions.fetch() }
+      if (!record.equals(prevRecord)) { this.props.fetch(this.props) }
     }
   })
 
   return compose<any>(withRedux, withLifecycle)(WrappedComponent)
 }
 
-const resourcefulList = (Resource, mergeProps = () => {}) => (WrappedListComponent) => {
+const resourcefulList = (Resource, options) => (WrappedListComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
+
+  const defaults = { mergeProps: () => {} }
+  const settings = { ...defaults, ...options }
+
+  const mergeProps = settings.mergeProps
+  const updateProps = settings.updateProps
 
   const mapStateToProps = (state, props) => ({
     records: Resource.selectors.selectAll()(state).map(record => Resource.build(record))
@@ -59,6 +72,13 @@ const resourcefulList = (Resource, mergeProps = () => {}) => (WrappedListCompone
   const withLifecycle = lifecycle({
     componentWillMount() {
       this.props.fetchAll(this.props)
+    },
+
+    componentDidUpdate(prevProps) {
+      const prevUpdateProps = pick(prevProps, updateProps)
+      const newUpdateProps = pick(this.props, updateProps)
+
+      if (!isEqual(prevUpdateProps, newUpdateProps)) { this.props.fetchAll(this.props) }
     }
   })
 
