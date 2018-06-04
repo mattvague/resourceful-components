@@ -1,13 +1,13 @@
 {
-	"name": "resourceful",
+	"name": "resourceful-components",
 	"version": "1.0.0",
-	"description": "Resourecful ties togther react, redux, immutablejs, and normalizr into a sane backbone for your API-backed app",
+	"description": "resourceful-components ties togther react, redux, immutablejs into a sane backbone for your API-backed app",
 	"main": "./dist/index.js",
 	"types": "./src/index.d.ts",
 	"module": "./src/index.ts",
 	"scripts": {
 		"build": "tsc",
-		"prepublishOnly": "npm run build",
+		"prepublishOnly": "yarn build",
 		"test": "jest"
 	},
 	"repository": {
