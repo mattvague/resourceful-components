@@ -2,8 +2,9 @@ import { Component } from 'react'
 import { compose, bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { lifecycle } from 'recompose'
-import pick from 'lodash/pick'
-import isEqual from 'lodash/isEqual'
+
+// TODO figure out why I can't import these seperately!!!
+import { pick, isEqual } from 'lodash'
 
 import Resource from './Resource'
 
