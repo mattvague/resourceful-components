@@ -38,7 +38,7 @@ const store =  {
   dispatch: jest.fn(),
   subscribe: jest.fn(),
   getState: jest.fn().mockReturnValue(fromJS({
-    dogs: new Map([[99, Dog.build({
+    dogs: new Map([[99, Map({
       id: 99,
       name: 'Laika',
       breed: 'Husky'
@@ -69,17 +69,17 @@ describe('resourceful', () => {
       expect(node.html()).not.toBe(null)
     })
 
-    describe('when id prop passed but not record prop', () => {
+    describe('when id prop passed', () => {
       let Component = ({ record }) => <div>{ record.name }</div>
 
-      it('selects record based on id', () => {
+      it('selects record by id', () => {
         const WrappedComponent = buildWrappedComponent()
         const node = mount(<WrappedComponent store={testStore} id={99} />)
         const props = getProps(node)
 
         expect(props).toEqual(expect.objectContaining({
           id: 99,
-          record: expect.objectContaining({
+          record: Dog.build({
             id: 99,
             name: 'Laika',
             breed: 'Husky'
@@ -140,8 +140,8 @@ describe('resourceful', () => {
       })
     })
 
-    describe('when record prop passed but not id prop', () => {
-      it('selects from record based on record id', () => {
+    xdescribe('when record prop passed but not id prop', () => {
+      it('selects record by record id', () => {
         const record = Dog.build({ id: 99, name: 'Laika', breed: 'Part husky, part samoyed' })
         const WrappedComponent = buildWrappedComponent()
         const node = mount(<WrappedComponent store={testStore} record={record} />)
@@ -216,8 +216,8 @@ describe('resourceful', () => {
     describe('mergeProps', () => {
       it('allows passing mergeProps', () => {
         const ReduxFormWrappedComponent = ({ onSubmit }) => <Component handleSubmit={onSubmit}/>
-        const WrappedComponent = resourceful(Dog, (dispatchProps, { save }, ownProps) => ({
-          onSubmit: save
+        const WrappedComponent = resourceful(Dog, ({ record }, stateProps, ownProps) => ({
+          onSubmit: record.actions.save
         }))(ReduxFormWrappedComponent)
         const node = mount(<WrappedComponent store={testStore} id={99} />)
         const props = node.children().first().find('Component').props()
@@ -266,7 +266,7 @@ describe('resourcefulList', () => {
 
       expect(List.isList(props.records)).toEqual(true)
 
-      expect(props.records.last()).toEqual(expect.objectContaining({
+      expect(props.records.last()).toEqual(Dog.build({
         id: 99,
         name: 'Laika',
         breed: 'Husky'

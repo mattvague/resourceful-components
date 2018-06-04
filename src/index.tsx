@@ -8,24 +8,18 @@ import { lifecycle } from 'recompose'
 const resourceful = (Resource, mergeProps = () => {}) => (WrappedComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
 
-  const selectRecord = (state, { id, record }) =>
-    Resource.selectors.select(record ? record.id : id)(state)
+  const selectRecord = Resource.selectors.select
 
-  const buildRecord = ({ id, record }) =>
-    record || Resource.build({ id })
-
-  const mapStateToProps = (state, props) => ({
-    record: selectRecord(state, props) || buildRecord(props)
+  const mapStateToProps = (state, { id }) => ({
+    record: Resource.build(selectRecord(id)(state) || { id })
   })
-
-  const mapDispatchToProps = (dispatch: any, props: object) =>
-    bindActionCreators(buildRecord(props).actions, dispatch)
 
   const withRedux = connect(
     mapStateToProps,
-    mapDispatchToProps,
+    null,
     (stateProps, dispatchProps, ownProps) => ({
       ...ownProps, ...dispatchProps, ...stateProps,
+      ...bindActionCreators(stateProps.record.actions, dispatchProps.dispatch),
       ...mergeProps(stateProps, dispatchProps, ownProps)
     })
   )
@@ -45,20 +39,21 @@ const resourceful = (Resource, mergeProps = () => {}) => (WrappedComponent) => {
   return compose<any>(withRedux, withLifecycle)(WrappedComponent)
 }
 
-const resourcefulList = (Resource, mergeProps) => (WrappedListComponent) => {
+const resourcefulList = (Resource, mergeProps = () => {}) => (WrappedListComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
 
   const mapStateToProps = (state, props) => ({
-    records: Resource.selectors.selectAll()(state)
+    records: Resource.selectors.selectAll()(state).map(record => Resource.build(record))
   })
-
-  const mapDispatchToProps = (dispatch, props) =>
-    bindActionCreators(Resource.actions, dispatch)
 
   const withRedux = connect(
     mapStateToProps,
-    mapDispatchToProps,
-    mergeProps
+    null,
+    (stateProps, dispatchProps, ownProps) => ({
+      ...ownProps, ...dispatchProps, ...stateProps,
+      ...bindActionCreators(Resource.actions, dispatchProps.dispatch),
+      ...mergeProps(stateProps, dispatchProps, ownProps)
+    })
   )
 
   const withLifecycle = lifecycle({
