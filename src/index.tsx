@@ -1,24 +1,30 @@
 import { Component } from 'react'
 import { compose, bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { lifecycle } from 'recompose'
+import { lifecycle, onlyUpdateForKeys, withProps } from 'recompose'
 
 // TODO figure out why I can't import these seperately!!!
 import { pick, isEqual } from 'lodash'
 
 import Resource from './Resource'
 
-const resourceful = (Resource, options) => (WrappedComponent) => {
+const resourceful = (Resource, options={}) => (WrappedComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
 
-  const defaults = { mergeProps: () => {} }
+  const defaults = {
+    mergeProps: () => {},
+    recordUpdateProps: [],
+    autoFetch: true
+  }
   const settings = { ...defaults, ...options }
 
   const mergeProps = settings.mergeProps
+  const autoFetch = settings.autoFetch
+  const recordUpdateProps = [...settings.recordUpdateProps, 'id']
   const selectRecord = Resource.selectors.select
 
-  const mapStateToProps = (state, { id }) => ({
-    record: Resource.build(selectRecord(id)(state) || { id })
+  const mapStateToProps = (state, { id, record }) => ({
+    record: Resource.build(selectRecord(record ? record.id : id)(state) || record || { id })
   })
 
   const withRedux = connect(
@@ -33,24 +39,38 @@ const resourceful = (Resource, options) => (WrappedComponent) => {
 
   const withLifecycle = lifecycle({
     componentWillMount() {
-      this.props.fetch(this.props)
+      if (!this.props.autoFetch || !this.props.id) { return }
+       this.props.fetch(this.props)
     },
 
     componentDidUpdate(prevProps) {
+      if (!this.props.autoFetch || !this.props.id) { return }
+
       const { record: prevRecord } = prevProps
       const { record } = this.props
 
-      if (!record.equals(prevRecord)) { this.props.fetch(this.props) }
+      const prevUpdateProps = pick(prevRecord, recordUpdateProps)
+      const newUpdateProps = pick(record, recordUpdateProps)
+
+      if (!isEqual(prevUpdateProps, newUpdateProps)) { this.props.fetch(this.props) }
     }
   })
 
-  return compose<any>(withRedux, withLifecycle)(WrappedComponent)
+  const withInitialProps = withProps({
+    autoFetch
+  })
+
+  return compose<any>(
+    withRedux,
+    withInitialProps,
+    withLifecycle,
+  )(WrappedComponent)
 }
 
 const resourcefulList = (Resource, options) => (WrappedListComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
 
-  const defaults = { mergeProps: () => {} }
+  const defaults = { mergeProps: () => {}, updateProps: [] }
   const settings = { ...defaults, ...options }
 
   const mergeProps = settings.mergeProps
@@ -83,7 +103,10 @@ const resourcefulList = (Resource, options) => (WrappedListComponent) => {
     }
   })
 
-  return compose<any>(withRedux, withLifecycle)(WrappedListComponent)
+  return compose<any>(
+    withRedux,
+    withLifecycle,
+  )(WrappedListComponent)
 }
 
 export { resourceful, resourcefulList, Resource }

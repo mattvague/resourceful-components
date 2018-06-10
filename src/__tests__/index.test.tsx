@@ -152,7 +152,7 @@ describe('resourceful', () => {
       })
     })
 
-    xdescribe('when record prop passed but not id prop', () => {
+    describe('when record prop passed but not id prop', () => {
       it('selects record by record id', () => {
         const record = Dog.build({ id: 99, name: 'Laika', breed: 'Part husky, part samoyed' })
         const WrappedComponent = buildWrappedComponent()
@@ -160,7 +160,7 @@ describe('resourceful', () => {
         const props = getProps(node)
 
         expect(props).toEqual(expect.objectContaining({
-          record: expect.objectContaining({
+          record: Dog.build({
             id: 99,
             name: 'Laika',
             breed: 'Husky'
@@ -179,23 +179,46 @@ describe('resourceful', () => {
         ]))
       })
 
-      it('fetches built record when component mounts', () => {
+      it('does not fetch record when component mounts', () => {
         const record = Dog.build({ id: 101, name: 'Laika', breed: 'Husky' })
         const WrappedComponent = buildWrappedComponent()
         mount(<WrappedComponent store={testStore} record={record} />)
 
-        expect(mockInstanceActions.fetch).toHaveBeenCalled()
-        expect(store.dispatch).toHaveBeenCalledWith({ type: 'TEST' })
+        expect(mockInstanceActions.fetch).not.toHaveBeenCalled()
       })
 
-      xit('fetches built record when record prop changes', () => {
+      it('does not fetch record when record id prop changes', () => {
         const record = Dog.build({ id: 101, name: 'Laika', breed: 'Husky' })
         const WrappedComponent = buildWrappedComponent()
         const node = mount(<WrappedComponent store={testStore} record={record} />)
 
-        node.setProps({ resource: Dog.build({ id: 102, name: 'Buck', breed: 'St-Bernard' }) })
+        node.setProps({ record: Dog.build({ id: 102, name: 'Buck', breed: 'St-Bernard' }) })
 
-        expect(mockInstanceActions.fetch.mock.calls.length).toEqual(2)
+        expect(mockInstanceActions.fetch).not.toHaveBeenCalled()
+      })
+
+      describe('when other record props change', () => {
+        it('does not fetch record', () => {
+          const record = Dog.build({ id: 101, name: 'Laika', breed: 'Husky' })
+          const WrappedComponent = buildWrappedComponent()
+          const node = mount(<WrappedComponent store={testStore} record={record} />)
+
+          node.setProps({ record: Dog.build({ id: 101, name: 'Buck', breed: 'St-Bernard' }) })
+
+          expect(mockInstanceActions.fetch).not.toHaveBeenCalled()
+        })
+      })
+
+      describe('when other props change', () => {
+        it('does not fetch record', () => {
+          const record = Dog.build({ id: 101, name: 'Laika', breed: 'Husky' })
+          const WrappedComponent = buildWrappedComponent()
+          const node = mount(<WrappedComponent store={testStore} record={record} />)
+
+          node.setProps({ otherProps: 1234 })
+
+          expect(mockInstanceActions.fetch).not.toHaveBeenCalled()
+        })
       })
 
       describe('when select returns no record', () => {
@@ -221,14 +244,13 @@ describe('resourceful', () => {
     xit('passes isLoading from record to component', () => {})
     xit('passes isSaving from record to component', () => {})
 
-    xit('maps resource actions to props', () => {})
+    xit('maps record actions to props', () => {})
   })
 
   describe('options', () => {
     describe('mergeProps', () => {
       it('allows passing mergeProps', () => {
-        const ReduxFormWrappedComponent = ({ onSubmit, ...rest }) =>
-          <Component handleSubmit={onSubmit} {...rest} />
+        const ReduxFormWrappedComponent = ({ onSubmit, ...rest }) => <Component handleSubmit={onSubmit} {...rest} />
         const WrappedComponent = resourceful(Dog, {
           mergeProps: ({ record }, dispatchProps, ownProps) => ({
             onSubmit: record.actions.save,
@@ -243,6 +265,38 @@ describe('resourceful', () => {
         expect(props.dog).toEqual(expect.objectContaining({ id: 99, name: 'Laika', breed: 'Husky' }))
         expect(mockInstanceActions.save).toHaveBeenCalled()
         expect(store.dispatch).toHaveBeenCalledWith({ type: 'TEST' })
+      })
+    })
+
+    describe('recordUpdateProps', () => {
+      xit('fetches record when record whitelisted prop changes', () => {
+        const record = Dog.build({ id: 103, name: 'Laika', breed: 'Husky' })
+        const WrappedComponent = resourceful(Dog, { recordUpdateProps: ['breed'] })(Component)
+        const node = mount(<WrappedComponent store={testStore} record={record} />)
+
+        node.setProps({ record: Dog.build({ id: 103, name: 'Laika', breed: 'Husky', breed: 'new breed' }) })
+
+        expect(mockInstanceActions.fetch.mock.calls.length).toEqual(2)
+      })
+    })
+
+    describe('autoFetch', () => {
+      describe('when false', () => {
+        it('does not fetch record when component mounts', () => {
+          const WrappedComponent = resourceful(Dog, { autoFetch: false })(Component)
+          mount(<WrappedComponent store={testStore} id={99} />)
+
+          expect(mockInstanceActions.fetch).not.toHaveBeenCalled()
+        })
+
+        it('does not fetch record when id prop changes', () => {
+          const WrappedComponent = resourceful(Dog, { autoFetch: false })(Component)
+          const node = mount(<WrappedComponent store={testStore} id={99} />)
+
+          node.setProps({ id: 100 })
+
+          expect(mockInstanceActions.fetch).not.toHaveBeenCalled()
+        })
       })
     })
 
@@ -280,7 +334,51 @@ describe('resourcefulList', () => {
         .toHaveBeenCalledWith(expect.objectContaining({ ownerId: 99 }))
     })
 
-    describe('prop changes', () => {
+    it('selects records', () => {
+      const WrappedListComponent = buildWrappedListComponent()
+      const node = mount(<WrappedListComponent store={testStore} />)
+      const props = getProps(node)
+
+      expect(List.isList(props.records)).toEqual(true)
+
+      expect(props.records.last()).toEqual(Dog.build({
+        id: 99,
+        name: 'Laika',
+        breed: 'Husky'
+      }))
+    })
+
+    xit('fetches records when specified props change', () => {})
+    xit('passes isLoading from record to component', () => {})
+    xit('passes isSaving from record to component', () => {})
+  })
+
+  describe('options', () => {
+    describe('mergeProps', () => {
+      it('allows passing mergeProps', () => {
+        const ReduxFormWrappedListComponent = (props) =>
+          <ListComponent {...props} />
+
+        const WrappedListComponent = resourcefulList(Dog, {
+          mergeProps: ({ records, record }, dispatchProps, ownProps) => ({
+            dogs: records
+          })
+        })(ReduxFormWrappedListComponent)
+
+        const node = mount(<WrappedListComponent store={testStore} ownerId={99} />)
+        const props = getProps(node)
+
+        expect(List.isList(props.dogs)).toEqual(true)
+
+        expect(props.dogs.last()).toEqual(Dog.build({
+          id: 99,
+          name: 'Laika',
+          breed: 'Husky'
+        }))
+      })
+    })
+
+    describe('updateProps', () => {
       it('fetches records when whitelisted prop changes', () => {
         const WrappedComponent = resourcefulList(Dog, {
           updateProps: 'ownerId'
@@ -309,48 +407,5 @@ describe('resourcefulList', () => {
       })
     })
 
-    it('selects records', () => {
-      const WrappedListComponent = buildWrappedListComponent()
-      const node = mount(<WrappedListComponent store={testStore} />)
-      const props = getProps(node)
-
-      expect(List.isList(props.records)).toEqual(true)
-
-      expect(props.records.last()).toEqual(Dog.build({
-        id: 99,
-        name: 'Laika',
-        breed: 'Husky'
-      }))
-    })
-
-    xit('fetches records when specified props change', () => {})
-    xit('passes isLoading from resource to component', () => {})
-    xit('passes isSaving from resource to component', () => {})
-  })
-
-  describe('options', () => {
-    describe('mergeProps', () => {
-      it('allows passing mergeProps', () => {
-        const ReduxFormWrappedListComponent = (props) =>
-          <ListComponent {...props} />
-
-        const WrappedListComponent = resourcefulList(Dog, {
-          mergeProps: ({ records, record }, dispatchProps, ownProps) => ({
-            dogs: records
-          })
-        })(ReduxFormWrappedListComponent)
-
-        const node = mount(<WrappedListComponent store={testStore} ownerId={99} />)
-        const props = getProps(node)
-
-        expect(List.isList(props.dogs)).toEqual(true)
-
-        expect(props.dogs.last()).toEqual(Dog.build({
-          id: 99,
-          name: 'Laika',
-          breed: 'Husky'
-        }))
-      })
-    })
   })
 })

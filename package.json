@@ -28,7 +28,7 @@
 	},
 	"homepage": "https://github.com/mattvague/resourceful#readme",
 	"dependencies": {
-		"lodash": "^4.17.10"
+		"@types/enzyme-adapter-react-16": "^1.0.2"
 	},
 	"devDependencies": {
 		"@types/jest": "^23.0.0",
@@ -43,6 +43,7 @@
 		"eslint-plugin-jest": "^21.17.0",
 		"eslint-plugin-prettier": "^2.6.0",
 		"immutable": "^3.8.2",
+		"lodash": "^4.17.10",
 		"prettier": "1.13.4",
 		"react": "^16.4.0",
 		"react-dom": "^16.4.0",
