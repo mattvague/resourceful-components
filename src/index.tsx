@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { lifecycle, onlyUpdateForKeys, withProps } from 'recompose'
 
 // TODO figure out why I can't import these seperately!!!
-import { pick, isEqual } from 'lodash'
+import { pick, isEqual, mapValues } from 'lodash'
 
 import Resource from './Resource'
 
@@ -24,7 +24,8 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
   const selectRecord = Resource.selectors.select
 
   const mapStateToProps = (state, { id, record }) => ({
-    record: Resource.build(selectRecord(record ? record.id : id)(state) || record || { id })
+    record: Resource.build(selectRecord(record ? record.id : id)(state) || record || { id }),
+    autoFetch: !!id && autoFetch
   })
 
   const withRedux = connect(
@@ -39,8 +40,8 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
 
   const withLifecycle = lifecycle({
     componentWillMount() {
-      if (!this.props.autoFetch || !this.props.id) { return }
-       this.props.fetch(this.props)
+      if (!this.props.autoFetch) { return }
+      this.props.fetch(this.props)
     },
 
     componentDidUpdate(prevProps) {
@@ -49,20 +50,17 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
       const { record: prevRecord } = prevProps
       const { record } = this.props
 
-      const prevUpdateProps = pick(prevRecord, recordUpdateProps)
-      const newUpdateProps = pick(record, recordUpdateProps)
+      const stringifyValues = (props) => mapValues(props, v => v && v.toString())
+
+      const prevUpdateProps = stringifyValues(pick(prevRecord, recordUpdateProps))
+      const newUpdateProps = stringifyValues(pick(record, recordUpdateProps))
 
       if (!isEqual(prevUpdateProps, newUpdateProps)) { this.props.fetch(this.props) }
     }
   })
 
-  const withInitialProps = withProps({
-    autoFetch
-  })
-
   return compose<any>(
     withRedux,
-    withInitialProps,
     withLifecycle,
   )(WrappedComponent)
 }

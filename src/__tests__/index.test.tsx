@@ -114,8 +114,19 @@ describe('resourceful', () => {
         expect(mockInstanceActions.fetch).toHaveBeenCalledWith(expect.objectContaining({ id: 100 }))
       })
 
+      describe('when id props changes to string value', () => {
+        it('does not re-fetch record', () => {
+          const WrappedComponent = buildWrappedComponent()
+          const node = mount(<WrappedComponent store={testStore} id={99} />)
+
+          node.setProps({ id: '99' })
+
+          expect(mockInstanceActions.fetch.mock.calls.length).toEqual(1)
+        })
+      })
+
       describe('when other props changes', () => {
-        it('does not fetch record', () => {
+        it('does not re-fetch record', () => {
           const WrappedComponent = buildWrappedComponent()
           const node = mount(<WrappedComponent store={testStore} id={99} />)
 
@@ -193,6 +204,16 @@ describe('resourceful', () => {
         const node = mount(<WrappedComponent store={testStore} record={record} />)
 
         node.setProps({ record: Dog.build({ id: 102, name: 'Buck', breed: 'St-Bernard' }) })
+
+        expect(mockInstanceActions.fetch).not.toHaveBeenCalled()
+      })
+
+      it('does not fetch record when record id prop changes to string value', () => {
+        const record = Dog.build({ id: 101, name: 'Laika', breed: 'Husky' })
+        const WrappedComponent = buildWrappedComponent()
+        const node = mount(<WrappedComponent store={testStore} record={record} />)
+
+        node.setProps({ record: Dog.build({ id: '101', name: 'Buck', breed: 'St-Bernard' }) })
 
         expect(mockInstanceActions.fetch).not.toHaveBeenCalled()
       })

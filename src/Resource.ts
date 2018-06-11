@@ -12,15 +12,20 @@ const DEFAULT_ATTRS = {
 // Need to typescript this bitch
 
 const Resource = (attrs: object, description: string) => {
-  return class  extends Record({ ...DEFAULT_ATTRS, ...attrs }, description) {
+  return class extends Record({ ...DEFAULT_ATTRS, ...attrs }, description) {
     static build (attrs: any) { return new this(attrs) }
 
-    static actions = {}
-    static selectors = {}
-    actions = {}
+    //get<T extends keyof IFruitParams>(value: T): IFruitParams[T] {
+      //// super.get() is mapped to the original get() function on Record
+      //return super.get(value) 
+    //}
 
-    //get idOrCid() { return this.persisted ? this.id : this.cid }
-    //get persisted() { return !!this.id; }
+    get identifier() { return this.persisted ? this.id : this.cid }
+    get persisted() { return !!this.id; }
+
+    identifierEquals(otherRecord) {
+      return this.identifier.toString() === otherRecord.identifier.toString()
+    }
   }
 }
 
