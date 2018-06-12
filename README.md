@@ -1,6 +1,6 @@
 # Resourceful Components POC
 
-*IMPORTANT* This is very WIP. Currently still playing around to see what the best API / abstraction level is. Don't use it on your project yet
+**IMPORTANT** This is very WIP. Currently still playing around to see what the best API / abstraction level is. Don't use it on your project yet
 
 Resourceful components makes it easy to integrate your react components
 with your API without all that "redux boilerplate" while keeping all
