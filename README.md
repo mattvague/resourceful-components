@@ -10,7 +10,7 @@ API resource related logic in one place.
 
 ### Define your resource with attributes, actions and selectors
 
-```
+```javascript
 export class Dog extends Resource({
   name: undefined,
   breed: undefined,
@@ -37,7 +37,7 @@ export class Dog extends Resource({
 
 ### Implement simple resource component
 
-```
+```javascript
 const DogItem = ({ record }) =>
   <article>
     <header>{ record.name }</header>
@@ -52,7 +52,7 @@ export default resourceful(Dog)(DogComponent)
 ```
 
 3. Render your component and watch dog appear
-```
+```javascript
 <SomeWrapper>
   <DogComponent id={99} />
 </SomeWrapper>
@@ -66,7 +66,7 @@ export default resourceful(Dog)(DogComponent)
 1. Define your resource as above
 2. Wrap your components with the `resourcefulList` HOC and pass resource
 
-```
+```javascript
 const DogListComponent = ({ records }) =>
   <ul>
     { records.map(record =>
@@ -79,7 +79,7 @@ export default resourcefulList(DogList)(DogComponent)
 ```
 
 3. Render your component and watch dogs appear
-```
+```javascript
 <SomeWrapper>
   <DogListComponent ownerId={99} />
 </SomeWrapper>
@@ -91,7 +91,7 @@ export default resourcefulList(DogList)(DogComponent)
 Wrap your components with the `resourceful` HOC, pass resource, and map
 values to integrate with redux form (or whatever other lib)
 
-```
+```javascript
 const DogFormComponent = ({ handleSubmit }) =>
   <form onSubmit={handleSubmit}>
     <Field name='record.age' component="input" type="text" />
@@ -114,7 +114,7 @@ export default compose(withReduxForm, withResourceful)(DogFormComponent)
 
 Render your component. It will now auto-fetch on initialization, and save when submitted
 
-```
+```javascript
 <SomeWrapper>
   <DogFormComponent id={99} />
 </SomeWrapper>
