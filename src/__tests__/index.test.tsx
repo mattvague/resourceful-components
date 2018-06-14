@@ -38,11 +38,18 @@ const store =  {
   dispatch: jest.fn(),
   subscribe: jest.fn(),
   getState: jest.fn().mockReturnValue(fromJS({
-    dogs: new Map([[99, Map({
-      id: 99,
-      name: 'Laika',
-      breed: 'Husky'
-    })]])
+    dogs: new Map([
+      [99, Map({
+        id: 99,
+        name: 'Laika',
+        breed: 'Husky'
+      })],
+      ['abcd1234', Map({
+        cid: 'abcd1234',
+        name: 'Laika',
+        breed: 'Husky'
+      })],
+    ])
   }))
 }
 
@@ -173,6 +180,21 @@ describe('resourceful', () => {
         expect(props).toEqual(expect.objectContaining({
           record: Dog.build({
             id: 99,
+            name: 'Laika',
+            breed: 'Husky'
+          })
+        }))
+      })
+
+      it('selects record by record cid', () => {
+        const record = Dog.build({ cid: 'abcd1234', name: 'Laika', breed: 'Part husky, part samoyed' })
+        const WrappedComponent = buildWrappedComponent()
+        const node = mount(<WrappedComponent store={testStore} record={record} />)
+        const props = getProps(node)
+
+        expect(props).toEqual(expect.objectContaining({
+          record: Dog.build({
+            cid: 'abcd1234',
             name: 'Laika',
             breed: 'Husky'
           })
@@ -362,11 +384,7 @@ describe('resourcefulList', () => {
 
       expect(List.isList(props.records)).toEqual(true)
 
-      expect(props.records.last()).toEqual(Dog.build({
-        id: 99,
-        name: 'Laika',
-        breed: 'Husky'
-      }))
+      expect(props.records.count()).toEqual(2)
     })
 
     xit('fetches records when specified props change', () => {})
@@ -391,11 +409,7 @@ describe('resourcefulList', () => {
 
         expect(List.isList(props.dogs)).toEqual(true)
 
-        expect(props.dogs.last()).toEqual(Dog.build({
-          id: 99,
-          name: 'Laika',
-          breed: 'Husky'
-        }))
+        expect(props.dogs.count()).toEqual(2)
       })
     })
 

@@ -24,7 +24,7 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
   const selectRecord = Resource.selectors.select
 
   const mapStateToProps = (state, { id, record }) => ({
-    record: Resource.build(selectRecord(record ? record.id : id)(state) || record || { id }),
+    record: Resource.build(selectRecord(record ? (record.id || record.cid) : id)(state) || record || { id }),
     autoFetch: !!id && autoFetch
   })
 
