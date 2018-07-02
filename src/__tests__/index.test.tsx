@@ -5,9 +5,12 @@ import Resource from '../Resource'
 
 import { shallow, mount, render } from 'enzyme'
 
+
+const mockIsFetchingInner = jest.fn(() => true)
 const mockSelectors = {
+  select: (id) => (state) => state.get('dogs').get(id),
   selectAll: () => (state) => state.get('dogs').toList(),
-  select: (id) => (state) => state.get('dogs').get(id)
+  isFetching: () => mockIsFetchingInner
 }
 
 const mockInstanceActions = {
@@ -34,23 +37,25 @@ class Dog extends Resource({
   actions = mockInstanceActions
 }
 
+const state = fromJS({
+  dogs: Map([
+    [99, Map({
+      id: 99,
+      name: 'Laika',
+      breed: 'Husky'
+    })],
+    ['abcd1234', Map({
+      cid: 'abcd1234',
+      name: 'Laika',
+      breed: 'Husky'
+    })],
+  ])
+})
+
 const store =  {
   dispatch: jest.fn(),
   subscribe: jest.fn(),
-  getState: jest.fn().mockReturnValue(fromJS({
-    dogs: new Map([
-      [99, Map({
-        id: 99,
-        name: 'Laika',
-        breed: 'Husky'
-      })],
-      ['abcd1234', Map({
-        cid: 'abcd1234',
-        name: 'Laika',
-        breed: 'Husky'
-      })],
-    ])
-  }))
+  getState: jest.fn().mockReturnValue(state)
 }
 
 const createStore = () => store
@@ -94,7 +99,7 @@ describe('resourceful', () => {
         }))
       })
 
-      it('is passed record actions props', () => {
+      it('is passes record actions props', () => {
         const WrappedComponent = buildWrappedComponent()
         const node = mount(<WrappedComponent store={testStore} id={99} />)
         const props = getProps(node)
@@ -102,6 +107,22 @@ describe('resourceful', () => {
         expect(Object.keys(props)).toEqual(expect.arrayContaining([
           'fetch', 'create', 'update', 'save', 'destroy', 'pet'
         ]))
+      })
+
+      it('passes fetching from record to component', () => {
+        const WrappedComponent = buildWrappedComponent()
+        const node = mount(<WrappedComponent store={testStore} id={99} />)
+        const props = getProps(node)
+
+        expect(props.hasOwnProperty('isFetching')).toEqual(true)
+      })
+
+      it('passes isSaving from record to component', () => {
+        const WrappedComponent = buildWrappedComponent()
+        const node = mount(<WrappedComponent store={testStore} id={99} />)
+        const props = getProps(node)
+
+        expect(props.hasOwnProperty('isSaving')).toEqual(true)
       })
 
       it('fetches record when component mounts', () => {
@@ -283,10 +304,6 @@ describe('resourceful', () => {
     })
 
     xdescribe('when record and id prop present', () => {})
-
-    xit('passes isLoading from record to component', () => {})
-    xit('passes isSaving from record to component', () => {})
-
     xit('maps record actions to props', () => {})
   })
 
@@ -377,6 +394,15 @@ describe('resourcefulList', () => {
         .toHaveBeenCalledWith(expect.objectContaining({ ownerId: 99 }))
     })
 
+    it('selects and passes fetching state', () => {
+      const WrappedListComponent = buildWrappedListComponent()
+      const node = mount(<WrappedListComponent store={testStore} />)
+      const props = getProps(node)
+
+      expect(mockIsFetchingInner).toHaveBeenCalledWith(state)
+      expect(props.isFetching).toEqual(true)
+    })
+
     it('selects records', () => {
       const WrappedListComponent = buildWrappedListComponent()
       const node = mount(<WrappedListComponent store={testStore} />)
@@ -389,7 +415,6 @@ describe('resourcefulList', () => {
 
     xit('fetches records when specified props change', () => {})
     xit('passes isLoading from record to component', () => {})
-    xit('passes isSaving from record to component', () => {})
   })
 
   describe('options', () => {

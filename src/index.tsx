@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import { compose, bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { lifecycle, onlyUpdateForKeys, withProps } from 'recompose'
+import { lifecycle, setDisplayName } from 'recompose'
 
 // TODO figure out why I can't import these seperately!!!
 import { pick, isEqual, mapValues } from 'lodash'
@@ -23,10 +23,16 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
   const recordUpdateProps = [...settings.recordUpdateProps, 'id']
   const selectRecord = Resource.selectors.select
 
-  const mapStateToProps = (state, { id, record }) => ({
-    record: Resource.build(selectRecord(record ? (record.id || record.cid) : id)(state) || record || { id }),
-    autoFetch: !!id && autoFetch
-  })
+  const mapStateToProps = (state, { id, record }) => {
+    const builtRecord = Resource.build(selectRecord(record ? (record.id || record.cid) : id)(state) || record || { id }),
+
+    return {
+      record: builtRecord,
+      isFetching: builtRecord._fetching,
+      isSaving: builtRecord._saving,
+      autoFetch: !!id && autoFetch
+    }
+  }
 
   const withRedux = connect(
     mapStateToProps,
@@ -60,6 +66,7 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
   })
 
   return compose<any>(
+    setDisplayName('resourceful'),
     withRedux,
     withLifecycle,
   )(WrappedComponent)
@@ -75,7 +82,8 @@ const resourcefulList = (Resource, options) => (WrappedListComponent) => {
   const updateProps = settings.updateProps
 
   const mapStateToProps = (state, props) => ({
-    records: Resource.selectors.selectAll()(state).map(record => Resource.build(record))
+    records: Resource.selectors.selectAll()(state).map(record => Resource.build(record)),
+    isFetching: Resource.selectors.isFetching()(state)
   })
 
   const withRedux = connect(
@@ -102,6 +110,7 @@ const resourcefulList = (Resource, options) => (WrappedListComponent) => {
   })
 
   return compose<any>(
+    setDisplayName('resourcefulList'),
     withRedux,
     withLifecycle,
   )(WrappedListComponent)
