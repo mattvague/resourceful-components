@@ -6,6 +6,7 @@ import Resource from '../Resource'
 import { shallow, mount, render } from 'enzyme'
 
 
+// TODO test select args
 const mockIsFetchingInner = jest.fn(() => true)
 const mockSelectors = {
   select: (id) => (state) => state.get('dogs').get(id),

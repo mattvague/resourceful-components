@@ -23,8 +23,11 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
   const recordUpdateProps = [...settings.recordUpdateProps, 'id']
   const selectRecord = Resource.selectors.select
 
-  const mapStateToProps = (state, { id, record }) => {
-    const builtRecord = Resource.build(selectRecord(record ? (record.id || record.cid) : id)(state) || record || { id }),
+  const mapStateToProps = (state, props) => {
+    const { id, record } = props
+    const builtRecord = Resource.build(
+      selectRecord(record ? (record.id || record.cid) : id, props)(state) || record || { id }
+    )
 
     return {
       record: builtRecord,
@@ -72,7 +75,7 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
   )(WrappedComponent)
 }
 
-const resourcefulList = (Resource, options) => (WrappedListComponent) => {
+const resourcefulList = (Resource, options = {}) => (WrappedListComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
 
   const defaults = { mergeProps: () => {}, updateProps: [] }
@@ -82,7 +85,7 @@ const resourcefulList = (Resource, options) => (WrappedListComponent) => {
   const updateProps = settings.updateProps
 
   const mapStateToProps = (state, props) => ({
-    records: Resource.selectors.selectAll()(state).map(record => Resource.build(record)),
+    records: Resource.selectors.selectAll()(state, props).map(record => Resource.build(record)),
     isFetching: Resource.selectors.isFetching()(state)
   })
 
