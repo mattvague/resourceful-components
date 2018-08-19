@@ -1,12 +1,17 @@
 import { Component } from 'react'
-import { compose, bindActionCreators } from 'redux'
+import { compose, bindActionCreators, AnyAction } from 'redux'
 import { connect } from 'react-redux'
-import { lifecycle, setDisplayName } from 'recompose'
+import { lifecycle, setDisplayName, stateProps } from 'recompose'
 
 // TODO figure out why I can't import these seperately!!!
 import { pick, isEqual, mapValues } from 'lodash'
 
 import Resource from './Resource'
+
+// TODO do these properly
+type StateProps = any
+type DispatchProps = any
+type OwnProps = any
 
 const resourceful = (Resource, options={}) => (WrappedComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
@@ -18,7 +23,7 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
   }
   const settings = { ...defaults, ...options }
 
-  const mergeProps = settings.mergeProps
+  const mergeProps: (stateProps, dispatchProps, ownProps) => any = settings.mergeProps
   const autoFetch = settings.autoFetch
   const recordUpdateProps = [...settings.recordUpdateProps, 'id']
   const selectRecord = Resource.selectors.select
@@ -40,14 +45,14 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
   const withRedux = connect(
     mapStateToProps,
     null,
-    (stateProps, dispatchProps, ownProps) => ({
+    (stateProps: StateProps, dispatchProps: DispatchProps, ownProps: OwnProps) => ({
       ...ownProps, ...dispatchProps, ...stateProps,
       ...bindActionCreators(stateProps.record.actions, dispatchProps.dispatch),
       ...mergeProps(stateProps, dispatchProps, ownProps)
     })
   )
 
-  const withLifecycle = lifecycle({
+  const withLifecycle = lifecycle<any, any, any>({
     componentWillMount() {
       if (!this.props.autoFetch) { return }
       this.props.fetch(this.props)
@@ -81,7 +86,7 @@ const resourcefulList = (Resource, options = {}) => (WrappedListComponent) => {
   const defaults = { mergeProps: () => {}, updateProps: [] }
   const settings = { ...defaults, ...options }
 
-  const mergeProps = settings.mergeProps
+  const mergeProps: (stateProps, dispatchProps, ownProps) => any = settings.mergeProps
   const updateProps = settings.updateProps
 
   const mapStateToProps = (state, props) => ({
@@ -92,14 +97,14 @@ const resourcefulList = (Resource, options = {}) => (WrappedListComponent) => {
   const withRedux = connect(
     mapStateToProps,
     null,
-    (stateProps, dispatchProps, ownProps) => ({
+    (stateProps: StateProps, dispatchProps: DispatchProps, ownProps: OwnProps) => ({
       ...ownProps, ...dispatchProps, ...stateProps,
       ...bindActionCreators(Resource.actions, dispatchProps.dispatch),
       ...mergeProps(stateProps, dispatchProps, ownProps)
     })
   )
 
-  const withLifecycle = lifecycle({
+  const withLifecycle = lifecycle<any, any, any>({
     componentWillMount() {
       this.props.fetchAll(this.props)
     },

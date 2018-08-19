@@ -3,7 +3,7 @@ import { Map, List, fromJS } from 'immutable'
 import { resourceful, resourcefulList } from '../'
 import Resource from '../Resource'
 
-import { shallow, mount, render } from 'enzyme'
+import { shallow, mount } from 'enzyme'
 
 
 // TODO test select args
@@ -35,7 +35,7 @@ class Dog extends Resource({
 
   static actions = mockClassActions
   static selectors = mockSelectors
-  actions = mockInstanceActions
+  get actions () { return mockInstanceActions }
 }
 
 const state = fromJS({
@@ -67,7 +67,7 @@ describe('resourceful', () => {
     jest.clearAllMocks()
   })
 
-  let Component = ({ record }) => <div></div>
+  let Component = ({ record }: any) => <div></div>
   let buildWrappedComponent = () => resourceful(Dog)(Component)
   let getProps = (node) => node.children().first().props()
 
@@ -319,7 +319,7 @@ describe('resourceful', () => {
           })
         })(ReduxFormWrappedComponent)
         const node = mount(<WrappedComponent store={testStore} id={99} />)
-        const props = node.children().first().find('Component').props()
+        const props: any = node.children().first().find('Component').props()
 
         props.handleSubmit()
 
@@ -335,7 +335,7 @@ describe('resourceful', () => {
         const WrappedComponent = resourceful(Dog, { recordUpdateProps: ['breed'] })(Component)
         const node = mount(<WrappedComponent store={testStore} record={record} />)
 
-        node.setProps({ record: Dog.build({ id: 103, name: 'Laika', breed: 'Husky', breed: 'new breed' }) })
+        node.setProps({ record: Dog.build({ id: 103, name: 'Laika', breed: 'new breed' }) })
 
         expect(mockInstanceActions.fetch.mock.calls.length).toEqual(2)
       })
