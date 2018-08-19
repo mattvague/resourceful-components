@@ -11,14 +11,25 @@ const DEFAULT_ATTRS = {
 
 // Need to typescript this bitch
 
-const Resource = (attrs: object, description: string) => {
+export default (attrs: object, description: string) => {
   return class extends Record({ ...DEFAULT_ATTRS, ...attrs }, description) {
     static build (attrs: any) { return new this(attrs) }
 
-    //get<T extends keyof IFruitParams>(value: T): IFruitParams[T] {
-      //// super.get() is mapped to the original get() function on Record
-      //return super.get(value) 
-    //}
+    static actions = {
+      fetchAll() { throw new Error(`fetchAll not implemented on ${description} class`) }
+    }
+
+    static selectors = {
+      select() { throw new Error(`select not implemented on ${description} class`) },
+      selectAll() { throw new Error(`selectAll not implemented on ${description} class`) }
+    }
+
+    actions = {
+      fetch() { throw new Error(`fetch not implemented on ${description}`) },
+      create() { throw new Error(`create not implemented on ${description}`) },
+      update() { throw new Error(`update not implemented on ${description}`) },
+      destroy() { throw new Error(`destroy not implemented on ${description}`) }
+    }
 
     get identifier() { return this.persisted ? this.id : this.cid }
     get persisted() { return !!this.id; }
@@ -28,5 +39,3 @@ const Resource = (attrs: object, description: string) => {
     }
   }
 }
-
-export default Resource
