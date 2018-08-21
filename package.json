@@ -1,6 +1,6 @@
 {
 	"name": "resourceful-components",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"description": "resourceful-components ties togther react, redux, immutablejs into a sane backbone for your API-backed app",
 	"main": "./dist/index.js",
 	"types": "./src/index.d.ts",
@@ -27,8 +27,7 @@
 		"url": "https://github.com/mattvague/resourceful/issues"
 	},
 	"homepage": "https://github.com/mattvague/resourceful#readme",
-	"dependencies": {
-	},
+	"dependencies": {},
 	"devDependencies": {
 		"@types/enzyme-adapter-react-16": "^1.0.2",
 		"@types/immutable": "^3.8.7",
