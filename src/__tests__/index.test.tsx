@@ -46,6 +46,7 @@ const state = fromJS({
       breed: 'Husky'
     })],
     ['abcd1234', Map({
+      id: 'abcd1234',
       cid: 'abcd1234',
       name: 'Laika',
       breed: 'Husky'
@@ -209,13 +210,14 @@ describe('resourceful', () => {
       })
 
       it('selects record by record cid', () => {
-        const record = Dog.build({ cid: 'abcd1234', name: 'Laika', breed: 'Part husky, part samoyed' })
+        const record = Dog.build({ id: null, cid: 'abcd1234', name: 'Laika', breed: 'Part husky, part samoyed' })
         const WrappedComponent = buildWrappedComponent()
         const node = mount(<WrappedComponent store={testStore} record={record} />)
         const props = getProps(node)
 
         expect(props).toEqual(expect.objectContaining({
           record: Dog.build({
+            id: 'abcd1234',
             cid: 'abcd1234',
             name: 'Laika',
             breed: 'Husky'
@@ -389,10 +391,10 @@ describe('resourcefulList', () => {
 
     it('fetches records when component mounts', () => {
       const WrappedListComponent = buildWrappedListComponent()
-      mount(<WrappedListComponent store={testStore} ownerId={99} />)
+      mount(<WrappedListComponent store={testStore} creatorId={99} />)
 
       expect(mockClassActions.fetchAll)
-        .toHaveBeenCalledWith(expect.objectContaining({ ownerId: 99 }))
+        .toHaveBeenCalledWith(expect.objectContaining({ creatorId: 99 }))
     })
 
     it('selects and passes fetching state', () => {
@@ -430,7 +432,7 @@ describe('resourcefulList', () => {
           })
         })(ReduxFormWrappedListComponent)
 
-        const node = mount(<WrappedListComponent store={testStore} ownerId={99} />)
+        const node = mount(<WrappedListComponent store={testStore} creatorId={99} />)
         const props = getProps(node)
 
         expect(List.isList(props.dogs)).toEqual(true)
@@ -442,23 +444,23 @@ describe('resourcefulList', () => {
     describe('updateProps', () => {
       it('fetches records when whitelisted prop changes', () => {
         const WrappedComponent = resourcefulList(Dog, {
-          updateProps: 'ownerId'
+          updateProps: 'creatorId'
         })(ListComponent)
 
-        const node = mount(<WrappedComponent store={testStore} ownerId={99} />)
+        const node = mount(<WrappedComponent store={testStore} creatorId={99} />)
 
-        node.setProps({ ownerId: 100 })
+        node.setProps({ creatorId: 100 })
         node.setProps({ notTheId: 22 })
 
         expect(mockClassActions.fetchAll.mock.calls.length).toEqual(2)
-        expect(mockClassActions.fetchAll).toHaveBeenCalledWith(expect.objectContaining({ ownerId: 100 }))
+        expect(mockClassActions.fetchAll).toHaveBeenCalledWith(expect.objectContaining({ creatorId: 100 }))
       })
 
       it('fetches records when whitelisted props changes', () => {
         const WrappedComponent = resourcefulList(Dog, {
-          updateProps: ['ownerId', 'otherId']
+          updateProps: ['creatorId', 'otherId']
         })(ListComponent)
-        const node = mount(<WrappedComponent store={testStore} ownerId={99} otherId={88} />)
+        const node = mount(<WrappedComponent store={testStore} creatorId={99} otherId={88} />)
 
         node.setProps({ otherId: 100 })
         node.setProps({ otherId: 109 })

@@ -11,7 +11,7 @@
   //// Class methods
 
   //static actions = {
-    //fetchAll({ ownerId }) { ... }
+    //fetchAll({ creatorId }) { ... }
   //}
 
   //static selectors = {
@@ -166,7 +166,7 @@
   //<ResourcefulDetail id={id} />
 
   //// Props are passed to fetchAll for filtering, etc
-  //<ResourcefulSimpleList ownerId={2} />
+  //<ResourcefulSimpleList creatorId={2} />
 
   //// Show form populated with existing dog
   //<ResourcefulSimpleForm record={myDogRecord} />

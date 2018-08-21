@@ -1,16 +1,19 @@
 import { Record } from 'immutable'
 import { v4 as uuid} from 'uuid'
 
-const DEFAULT_ATTRS = {
-  id: undefined,
-  cid: uuid(),
-  _saving: false,
-  _fetching: false,
-  _deleted: false,
+const buildDefaultAttrs = () => {
+  const cid = uuid()
+  return {
+    cid,
+    id: cid,
+    _saving: false,
+    _fetching: false,
+    _deleted: false
+  }
 }
 
 export default (attrs: object, description: string) => {
-  return class extends Record({ ...DEFAULT_ATTRS, ...attrs }, description) {
+  return class extends Record({ ...buildDefaultAttrs(), ...attrs }, description) {
     id: number
     cid: string
 
@@ -34,11 +37,8 @@ export default (attrs: object, description: string) => {
       }
     }
 
-    get identifier() { return this.persisted ? this.id : this.cid }
-    get persisted() { return !!this.id; }
-
     identifierEquals(otherRecord) {
-      return this.identifier.toString() === otherRecord.identifier.toString()
+      return this.id.toString() === otherRecord.id.toString()
     }
   }
 }

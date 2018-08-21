@@ -14,16 +14,5 @@ describe('Resource', () => {
         })
       })
     })
-
-    describe('when both cids present', () => {
-      [[1,'1',true], ['1', 1, true], [1, 2, false]].forEach((tuple) => {
-        it(`is ${tuple[0]} when target cid is ${tuple[1]} and other cid is ${tuple[2]}`, () => {
-          let targetRecord = new MyResource({ cid: tuple[0] })
-          let otherRecord = new MyResource({ cid: tuple[1] })
-
-          expect(targetRecord.identifierEquals(otherRecord)).toEqual(tuple[2])
-        })
-      })
-    })
   })
 })

@@ -15,7 +15,7 @@ export class Dog extends Resource({
   age: undefined
 }, 'Dog') {
   static actions = {
-    fetchAll({ ownerId }) { ... } // Fetch all resources
+    fetchAll({ creatorId }) { ... } // Fetch all resources
   }
 
   static selectors = {
@@ -79,7 +79,7 @@ export default resourcefulList(DogList)(DogComponent)
 3. Render your component and watch dogs appear
 ```
 <SomeWrapper>
-  <DogListComponent ownerId={99} />
+  <DogListComponent creatorId={99} />
 </SomeWrapper>
 
 ```
