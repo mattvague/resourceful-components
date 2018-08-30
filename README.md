@@ -1,12 +1,18 @@
-# Resourceful Components (WIP)
+# Resourceful Components
 
-Resourceful components makes it easy to integrate your react components
-with your API without all that "redux boilerplate" while keeping all
-API resource related logic in one place.
+Resourceful components makes it easy to integrate your react components with your API without all that "redux boilerplate"
+
+## 🚨 State of the project: Work in Progress
+
+Still very much an experiment. So far, this lib is working pretty well in my own projects but there is still fat to trim and approaches
+to re-evaluate. Please feel free to try it out but be warned that I'm not sure it's ready for use in other projects
 
 ## Usage
 
 ### Define your resource with attributes, actions and selectors
+
+**NOTE** I really do like this part for my own apps but I'm not sure _this_ library should impose this
+structure, still evaluating
 
 ```
 export class Dog extends Resource({
