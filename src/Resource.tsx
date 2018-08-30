@@ -5,10 +5,7 @@ const buildDefaultAttrs = () => {
   const cid = uuid()
   return {
     cid,
-    id: cid,
-    _saving: false,
-    _fetching: false,
-    _deleted: false
+    id: cid
   }
 }
 
