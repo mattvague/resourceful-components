@@ -16,7 +16,7 @@ type OwnProps = any
 const resourceful = (Resource, options={}) => (WrappedComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
 
-  const defaults = { recordUpdateProps: [], autoFetch: true }
+  const defaults = { recordUpdateProps: [], autoFetch: true, recordProp: 'record' }
   const settings = { ...defaults, ...options }
 
   const autoFetch = settings.autoFetch
@@ -27,13 +27,13 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
     setDisplayName('resourceful'),
     connect(
       (state, { id }) => ({
-        record: id ? Resource.build(selectRecord(id)(state)).merge({ id }) : Resource.build({ id }),
+        [settings.recordProp]: id ? Resource.build(selectRecord(id)(state)).merge({ id }) : Resource.build({ id }),
         autoFetch: !!id && autoFetch
       }),
       null,
       (stateProps: StateProps, dispatchProps: DispatchProps, ownProps: OwnProps) => ({
         ...ownProps, ...dispatchProps, ...stateProps,
-        ...bindActionCreators(stateProps.record.actions, dispatchProps.dispatch),
+        ...bindActionCreators(stateProps[settings.recordProp].actions, dispatchProps.dispatch),
       })
     ),
     lifecycle<any, any, any>({
@@ -45,8 +45,8 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
       componentDidUpdate(prevProps) {
         if (!this.props.autoFetch || !this.props.id) { return }
   
-        const { record: prevRecord } = prevProps
-        const { record } = this.props
+        const { [settings.recordProp]: prevRecord } = prevProps
+        const { [settings.recordProp]: record } = this.props
   
         const stringifyValues = (props) => mapValues(props, v => v && v.toString())
   
@@ -62,7 +62,7 @@ const resourceful = (Resource, options={}) => (WrappedComponent) => {
 const resourcefulList = (Resource, options = {}) => (WrappedListComponent) => {
   if (!Resource) { throw new Error('No resource provided') }
 
-  const defaults = { updateProps: [] }
+  const defaults = { updateProps: [], recordsProp: 'records' }
   const settings = { ...defaults, ...options }
   const updateProps = settings.updateProps
 
@@ -70,7 +70,7 @@ const resourcefulList = (Resource, options = {}) => (WrappedListComponent) => {
     setDisplayName('resourcefulList'),
     connect(
       (state, props) => ({
-        records: Resource.selectors.selectAll()(state, props).map(record => Resource.build(record))
+        [settings.recordsProp]: Resource.selectors.selectAll()(state, props).map(record => Resource.build(record))
       }),
       null,
       (stateProps: StateProps, dispatchProps: DispatchProps, ownProps: OwnProps) => ({

@@ -175,6 +175,21 @@ describe('resourceful', () => {
   })
 
   describe('options', () => {
+    describe('recordProp', () => {
+      it('renames record prop', () => {
+        const WrappedComponent = resourceful(Dog, { recordProp: 'dog' })(Component)
+        const node = mount(<WrappedComponent store={testStore} id={98} />)
+        const props = getProps(node)
+
+        expect(props).toEqual(expect.objectContaining({
+          id: 98,
+          dog: expect.objectContaining({
+            id: 98
+          })
+        }))
+      })
+    })
+
     describe('recordUpdateProps', () => {
       xit('fetches record when record whitelisted prop changes', () => {
         const record = Dog.build({ id: 103, name: 'Laika', breed: 'Husky' })
@@ -243,12 +258,22 @@ describe('resourcefulList', () => {
       const props = getProps(node)
 
       expect(List.isList(props.records)).toEqual(true)
-
       expect(props.records.count()).toEqual(2)
     })
   })
 
   describe('options', () => {
+    describe('recordsProp', () => {
+      it('renames record prop', () => {
+        const WrappedListComponent = resourcefulList(Dog, { recordsProp: 'dogs' })(ListComponent)
+        const node = mount(<WrappedListComponent store={testStore} />)
+        const props = getProps(node)
+  
+        expect(List.isList(props.dogs)).toEqual(true)
+        expect(props.dogs.count()).toEqual(2)
+      })
+    })
+
     describe('updateProps', () => {
       it('fetches records when whitelisted prop changes', () => {
 
@@ -278,6 +303,5 @@ describe('resourcefulList', () => {
         expect(mockClassActions.fetchAll.mock.calls.length).toEqual(3)
       })
     })
-
   })
 })
