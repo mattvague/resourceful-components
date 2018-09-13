@@ -1,10 +1,11 @@
-# Resourceful Components POC
+# Resourceful Components
 
-**IMPORTANT** This is very WIP. Currently still playing around to see what the best API / abstraction level is. Don't use it on your project yet
+Resourceful components makes it easy to integrate your react components with your API without all that "redux boilerplate"
 
-Resourceful components makes it easy to integrate your react components
-with your API without all that "redux boilerplate" while keeping all
-API resource related logic in one place.
+## 🚨 State of the project: Work in Progress
+
+Still very much an experiment. So far, this lib is working pretty well in my own projects but there is still fat to trim and approaches
+to re-evaluate. Please feel free to try it out but be warned that I'm not sure it's ready for use in other projects
 
 ## Usage
 
@@ -17,7 +18,7 @@ export class Dog extends Resource({
   age: undefined
 }, 'Dog') {
   static actions = {
-    fetchAll({ ownerId }) { ... } // Fetch all resources
+    fetchAll({ creatorId }) { ... } // Fetch all resources
   }
 
   static selectors = {
@@ -81,7 +82,7 @@ export default resourcefulList(DogList)(DogComponent)
 3. Render your component and watch dogs appear
 ```javascript
 <SomeWrapper>
-  <DogListComponent ownerId={99} />
+  <DogListComponent creatorId={99} />
 </SomeWrapper>
 
 ```
