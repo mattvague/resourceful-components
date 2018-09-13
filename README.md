@@ -11,6 +11,9 @@ to re-evaluate. Please feel free to try it out but be warned that I'm not sure i
 
 ### Define your resource with attributes, actions and selectors
 
+**NOTE** I really do like this part for my own apps but I'm not sure _this_ library should impose this	```javascript
+structure, still evaluating
+
 ```javascript
 export class Dog extends Resource({
   name: undefined,
